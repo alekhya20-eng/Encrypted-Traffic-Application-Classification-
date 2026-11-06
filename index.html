@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encrypted Traffic Classification</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    margin: 0;
+    color: #1e293b;
+}
+
+header {
+    background: #101d35;
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+.container {
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 15px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px #0001;
+}
+
+h2 {
+    color: #1d4ed8;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 13px 22px;
+    margin-top: 20px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+#result {
+    display: none;
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Encrypted Traffic Classification</h1>
+    <p>Flow-Statistics Based Machine Learning Prototype</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Project Overview</h2>
+        <p>
+            This prototype demonstrates encrypted network traffic
+            application classification using flow statistics.
+            Traffic is analyzed without decrypting its contents.
+        </p>
+        <p><b>Classification Features:</b> Duration, packets,
+        bytes, packet size and protocol.</p>
+    </div>
+
+    <div class="card">
+        <h2>Upload Traffic Dataset</h2>
+
+        <label for="csvFile">Choose CSV Dataset</label>
+        <input type="file" id="csvFile" accept=".csv">
+
+        <p id="fileStatus">No dataset selected.</p>
+    </div>
+
+    <div class="card">
+        <h2>Enter Flow Statistics</h2>
+
+        <form id="trafficForm">
+            <div class="grid">
+
+                <div>
+                    <label for="duration">Flow Duration (seconds)</label>
+                    <input type="number" id="duration"
+                           min="0" step="any" value="30" required>
+                </div>
+
+                <div>
+                    <label for="packets">Total Packets</label>
+                    <input type="number" id="packets"
+                           min="1" step="1" value="120" required>
+                </div>
+
+                <div>
+                    <label for="bytes">Total Bytes</label>
+                    <input type="number" id="bytes"
+                           min="0" step="any" value="50000" required>
+                </div>
+
+                <div>
+                    <label for="packetSize">Average Packet Size</label>
+                    <input type="number" id="packetSize"
+                           min="0" step="any" value="416.67" required>
+                </div>
+
+                <div>
+                    <label for="inbound">Inbound Packets</label>
+                    <input type="number" id="inbound"
+                           min="0" step="1" value="70" required>
+                </div>
+
+                <div>
+                    <label for="outbound">Outbound Packets</label>
+                    <input type="number" id="outbound"
+                           min="0" step="1" value="50" required>
+                </div>
+
+                <div>
+                    <label for="protocol">Protocol</label>
+                    <select id="protocol">
+                        <option value="TCP">TCP</option>
+                        <option value="UDP">UDP</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit">Analyze Traffic</button>
+            <button type="reset">Reset</button>
+        </form>
+
+        <div id="result" aria-live="polite">
+            <h2>Classification Result</h2>
+            <p id="appResult"></p>
+            <p id="details"></p>
+            <p><b>Mode:</b> Demonstration only — not an ML prediction.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>How It Works</h2>
+        <p>1. Enter network flow statistics.</p>
+        <p>2. Analyze the supplied features.</p>
+        <p>3. View a sample application category.</p>
+        <p>4. Connect a trained ML model for real predictions.</p>
+    </div>
+
+</div>
+
+<footer>
+    Encrypted Traffic Classification | Academic Project Prototype
+</footer>
+
+<script>
+const form = document.getElementById("trafficForm");
+
+document.getElementById("csvFile").addEventListener("change", function() {
+    const file = this.files[0];
+    document.getElementById("fileStatus").textContent =
+        file ? "Selected: " + file.name +
+        " (uploading and classification are not implemented)" :
+        "No dataset selected.";
+});
+
+form.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const duration = Number(document.getElementById("duration").value);
+    const packets = Number(document.getElementById("packets").value);
+    const bytes = Number(document.getElementById("bytes").value);
+    const packetSize = Number(document.getElementById("packetSize").value);
+    const inbound = Number(document.getElementById("inbound").value);
+    const outbound = Number(document.getElementById("outbound").value);
+    const protocol = document.getElementById("protocol").value;
+
+    if (
+        !Number.isFinite(duration) || duration < 0 ||
+        !Number.isInteger(packets) || packets < 1 ||
+        !Number.isFinite(bytes) || bytes < 0 ||
+        !Number.isFinite(packetSize) || packetSize < 0 ||
+        !Number.isInteger(inbound) || inbound < 0 ||
+        !Number.isInteger(outbound) || outbound < 0
+    ) {
+        alert("Please enter valid flow statistics.");
+        return;
+    }
+
+    if (inbound + outbound !== packets) {
+        alert("Inbound Packets + Outbound Packets must equal Total Packets.");
+        return;
+    }
+
+    // This is a demonstration label, NOT a trained ML prediction.
+    let category;
+
+    if (protocol === "UDP") {
+        category = "UDP-based Application";
+    } else {
+        category = "TCP-based Application";
+    }
+
+    document.getElementById("appResult").textContent =
+        "Sample Category: " + category;
+
+    document.getElementById("details").textContent =
+        "Duration: " + duration + " seconds | " +
+        "Packets: " + packets + " | " +
+        "Bytes: " + bytes + " | " +
+        "Average Packet Size: " + packetSize + " bytes";
+
+    document.getElementById("result").style.display = "block";
+});
+
+form.addEventListener("reset", function() {
+    document.getElementById("result").style.display = "none";
+});
+</script>
+
+</body>
+</html>
